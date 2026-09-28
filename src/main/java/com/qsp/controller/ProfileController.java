@@ -40,9 +40,9 @@ public class ProfileController {
 			boolean isActivated= profileService.activateProfile(token);
 			
 			if (isActivated) {
-				return ResponseEntity.ok("Profile activated successfully");
+				return ResponseEntity.ok("Account activated successfully. You can now login.");
 			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Activation token not found or already used");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid activation token.");
 
 			}
 		}
