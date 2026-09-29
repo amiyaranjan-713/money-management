@@ -10,6 +10,6 @@ public class HomeController {
 	
 	@GetMapping
 	public String healthCheck() {
-		return "Application is running";
+		return "Application is running on cicd";
 	}
 }
