@@ -10,6 +10,6 @@ public class HomeController {
 	
 	@GetMapping
 	public String healthCheck() {
-		return "Application is running on cicd";
+		return "Money Management API is running with CI/CD!";
 	}
 }
