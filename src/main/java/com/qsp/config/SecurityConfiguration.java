@@ -1,12 +1,13 @@
+
 package com.qsp.config;
 
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
-
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,60 +29,96 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-		
-	private final AppUserDetailsService appUserDetailsService;
-	private final JwtRequsetFilter jwtRequsetFilter;
-		@Bean
-		public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-	        httpSecurity
-	                .cors(Customizer.withDefaults())
-	                .csrf(AbstractHttpConfigurer::disable)
-	                .authorizeHttpRequests(auth -> auth
-	                        .requestMatchers(
-	                                "/status",
-	                                "/health",
-	                                "/register",
-	                                "/activate",
-	                                "/login"
-	                        ).permitAll()
-	                        .anyRequest().authenticated()
-	                )
-	                .sessionManagement(session ->
-	                        session.sessionCreationPolicy(
-	                                SessionCreationPolicy.STATELESS
-	                        )
-	                )
-	                .addFilterBefore(
-	                        jwtRequsetFilter,
-	                        UsernamePasswordAuthenticationFilter.class
-	                );
+    private final AppUserDetailsService appUserDetailsService;
+    private final JwtRequsetFilter jwtRequsetFilter;
 
-	        return httpSecurity.build();
-		}
-		
-		@Bean
-		public PasswordEncoder passwordEncoder() {
-			return new BCryptPasswordEncoder();
-		}
-		
-		@Bean
-		public CorsConfigurationSource configurationSource() {
-			CorsConfiguration  configuration= new CorsConfiguration();
-			configuration.setAllowedOriginPatterns(List.of("*"));
-			configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-			configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-			configuration.setAllowCredentials(true);
-			UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
-			source.registerCorsConfiguration("/**", configuration);
-			return source;
-		}
-		
-		@Bean
-		public AuthenticationManager authenticationManager() {
-			DaoAuthenticationProvider authenticationProvider= new DaoAuthenticationProvider(appUserDetailsService);
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity httpSecurity) throws Exception {
 
-			authenticationProvider.setPasswordEncoder(passwordEncoder());
-			return new ProviderManager(authenticationProvider);
-		}
+        httpSecurity
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+
+            .authorizeHttpRequests(auth -> auth
+               
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                .requestMatchers(
+                    "/status",
+                    "/health",
+                    "/register",
+                    "/activate",
+                    "/login"
+                ).permitAll()
+
+                
+                .anyRequest().authenticated()
+            )
+
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
+
+            .addFilterBefore(
+                jwtRequsetFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
+
+        return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+      
+        configuration.setAllowedOrigins(
+            List.of("http://localhost:5173")
+        );
+
+        configuration.setAllowedMethods(
+            List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            )
+        );
+
+   
+        configuration.setAllowedHeaders(List.of("*"));
+
+        
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+
+        DaoAuthenticationProvider authenticationProvider =
+            new DaoAuthenticationProvider(appUserDetailsService);
+
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+
+        return new ProviderManager(authenticationProvider);
+    }
 }
