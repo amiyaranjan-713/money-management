@@ -48,28 +48,60 @@ public class ProfileController {
 		}
 		
 		@PostMapping("/login")
-		public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDTO authDTO){
-			try {
-				if(!profileService.isActiveAccount(authDTO.getEmail())) {
-					
-					return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-							Map.of("Message", "Account is not active. Plese activate your account first.")
-							);
-				}
-				Map<String, Object> response=profileService.authenticateAndGenerateToken(authDTO);
-				return ResponseEntity.ok(response);
-			} catch (Exception e) {
-				  e.printStackTrace();
+		public ResponseEntity<Map<String, Object>> login(
+		        @RequestBody AuthDTO authDTO) {
 
-				    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				        Map.of(
-				            "message",
-				            e.getMessage() != null ? e.getMessage() : "Login failed"
-				        )
-				    );
-			}
+		    System.out.println("========== LOGIN START ==========");
+		    System.out.println("Login email: " + authDTO.getEmail());
+
+		    try {
+
+		        System.out.println("Checking active account...");
+
+		        boolean active = profileService.isActiveAccount(authDTO.getEmail());
+
+		        System.out.println("Account active: " + active);
+
+		        if (!active) {
+		            System.out.println("Account is NOT active");
+
+		            return ResponseEntity
+		                    .status(HttpStatus.FORBIDDEN)
+		                    .body(
+		                        Map.of(
+		                            "message",
+		                            "Account is not active. Please activate your account first."
+		                        )
+		                    );
+		        }
+
+		        System.out.println("Authenticating user...");
+
+		        Map<String, Object> response =
+		                profileService.authenticateAndGenerateToken(authDTO);
+
+		        System.out.println("Authentication successful");
+		        System.out.println("========== LOGIN END ==========");
+
+		        return ResponseEntity.ok(response);
+
+		    } catch (Exception e) {
+
+		        System.out.println("========== LOGIN ERROR ==========");
+		        e.printStackTrace();
+
+		        return ResponseEntity
+		                .status(HttpStatus.BAD_REQUEST)
+		                .body(
+		                    Map.of(
+		                        "message",
+		                        e.getMessage() != null
+		                            ? e.getMessage()
+		                            : "Login failed"
+		                    )
+		                );
+		    }
 		}
-		
 		
 		@GetMapping("/test")
 		public String test() {
