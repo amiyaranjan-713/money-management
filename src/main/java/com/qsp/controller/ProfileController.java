@@ -59,8 +59,14 @@ public class ProfileController {
 				Map<String, Object> response=profileService.authenticateAndGenerateToken(authDTO);
 				return ResponseEntity.ok(response);
 			} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-					"message", e.getMessage()));
+				  e.printStackTrace();
+
+				    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+				        Map.of(
+				            "message",
+				            e.getMessage() != null ? e.getMessage() : "Login failed"
+				        )
+				    );
 			}
 		}
 		
