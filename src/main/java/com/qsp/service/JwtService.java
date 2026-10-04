@@ -13,14 +13,18 @@ import com.qsp.entity.ProfileEntity;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 @Service
 public class JwtService {
 
     private final String SECRET_KEY;
+    private final long expiration;
 
-    public JwtService(@Value("${jwt.secret}") String secretKey) {
+    public JwtService(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration}") long expiration) {
+
         this.SECRET_KEY = secretKey;
+        this.expiration = expiration;
     }
 
     private SecretKey getKey() {
@@ -35,7 +39,7 @@ public class JwtService {
                 .subject(profile.getEmail())
                 .issuedAt(new Date())
                 .expiration(
-                        new Date(System.currentTimeMillis() + (1000 * 60 * 60))
+                        new Date(System.currentTimeMillis() + expiration)
                 )
                 .signWith(getKey())
                 .compact();
@@ -51,7 +55,9 @@ public class JwtService {
                 .getSubject();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(
+            String token,
+            UserDetails userDetails) {
 
         try {
             String username = extractUserName(token);

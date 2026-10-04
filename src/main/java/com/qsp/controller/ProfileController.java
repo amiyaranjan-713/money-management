@@ -51,19 +51,18 @@ public class ProfileController {
 		public ResponseEntity<Map<String, Object>> login(
 		        @RequestBody AuthDTO authDTO) {
 
-		    System.out.println("========== LOGIN START ==========");
-		    System.out.println("Login email: " + authDTO.getEmail());
+		   		    System.out.println("Login email: " + authDTO.getEmail());
 
 		    try {
 
-		        System.out.println("Checking active account...");
+		   
 
 		        boolean active = profileService.isActiveAccount(authDTO.getEmail());
 
 		        System.out.println("Account active: " + active);
 
 		        if (!active) {
-		            System.out.println("Account is NOT active");
+		           
 
 		            return ResponseEntity
 		                    .status(HttpStatus.FORBIDDEN)
@@ -75,19 +74,18 @@ public class ProfileController {
 		                    );
 		        }
 
-		        System.out.println("Authenticating user...");
+		       
 
 		        Map<String, Object> response =
 		                profileService.authenticateAndGenerateToken(authDTO);
 
-		        System.out.println("Authentication successful");
-		        System.out.println("========== LOGIN END ==========");
+		        
 
 		        return ResponseEntity.ok(response);
 
 		    } catch (Exception e) {
 
-		        System.out.println("========== LOGIN ERROR ==========");
+		        
 		        e.printStackTrace();
 
 		        return ResponseEntity
